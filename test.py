@@ -1,0 +1,39 @@
+
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from agent.graph_builder import builder
+from rich import print
+from langchain_core.messages import HumanMessage
+from dotenv import load_dotenv
+import utils
+load_dotenv()  
+
+
+
+
+config = {"configurable": {"thread_id":3}}
+state={"messages":[HumanMessage(content="give the name of the patient P-004?")]}
+async def main():
+    async with AsyncSqliteSaver.from_conn_string("./medical_chatbot.db") as checkpointer:
+        app=builder.compile(checkpointer=checkpointer)
+        # async for output in app.astream(state,config=config):
+        #     if output.get('brain'):
+        #         print(f"[bold bright_green ] Brain Output: {output['brain']['messages'][-1].content} [bold bright_green ]")
+        #     if output.get('web_search'):
+        #         print(f"[bold bright_blue ] Web Search Result: {output['web_search']['messages'][-1].content} [bold bright_blue ]")
+        #     if output.get('patient_lookup'):
+        #         print(f"[bold bright_blue ] Patient Lookup Result: {output['patient_lookup']['messages'][-1].content} [bold bright_blue ]")
+        #     if output.get('summarize'):
+        #         print(f"[bold bright_magenta ] New Summary: {output['summarize']['summary']} [bold bright_magenta ]")
+        #     if output.get('helper tools'):
+        #         print(f"[bold bright_cyan ] Helper Tools Output: {output['helper tools']['messages'][-1].content} [bold bright_cyan ]")
+        #     if output.get('guard'):
+        #         print(f"[bold bright_red ] Guard Decision: {output['guard']} [bold bright_red ]")
+        async for output in utils.stream_app_output(app,state,config):
+         print(output)
+        
+
+
+if __name__ == "__main__":
+    
+    import asyncio
+    asyncio.run(main())
