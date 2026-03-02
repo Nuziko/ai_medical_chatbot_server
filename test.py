@@ -1,8 +1,7 @@
-
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from agent.graph_builder import builder
 from rich import print
-from langchain_core.messages import HumanMessage
+
 from dotenv import load_dotenv
 import utils
 load_dotenv()  
@@ -10,9 +9,9 @@ load_dotenv()
 
 
 
-config = {"configurable": {"thread_id":3}}
-state={"messages":[HumanMessage(content="give the name of the patient P-004?")]}
-async def main():
+config = {"configurable": {"thread_id":4}}
+state={"query":"give me the age of the patient P-005?"}
+async def stream_chat():
     async with AsyncSqliteSaver.from_conn_string("./medical_chatbot.db") as checkpointer:
         app=builder.compile(checkpointer=checkpointer)
         # async for output in app.astream(state,config=config):
@@ -31,9 +30,15 @@ async def main():
         async for output in utils.stream_app_output(app,state,config):
          print(output)
         
-
+async def normal_chat():
+    async with AsyncSqliteSaver.from_conn_string("./medical_chatbot.db") as checkpointer:
+        app=builder.compile(checkpointer=checkpointer)
+        result =await  utils.get_answer(app,state,config)
+        print(result)
+    
 
 if __name__ == "__main__":
-    
     import asyncio
-    asyncio.run(main())
+    asyncio.run(stream_chat())
+    #asyncio.run(normal_chat())
+    

@@ -6,7 +6,7 @@ from agent.prompts import REFUSAL_MESSAGES,GUARD_SYSTEM_PROMPT
 import json
 from typing import Literal
 from langgraph.prebuilt import ToolNode
-from rich import print
+
 
 
 def guard_node(state: MedicalState) -> dict:
@@ -28,13 +28,13 @@ def guard_node(state: MedicalState) -> dict:
     """
     
 
-    last_msg = state["messages"][-1]
+   
     
     
 
     safeguard_messages = [
         SystemMessage(content=GUARD_SYSTEM_PROMPT),
-        HumanMessage(content=f"Classify this messages:\n\n{last_msg.content}"),
+        HumanMessage(content=f"Classify this messages:\n\n{state['query']}"),
     ]
 
     response = get_llm(model_name="openai/gpt-oss-safeguard-20b", tools=[],tags=["safety"],temperature=0.0).invoke(safeguard_messages)
@@ -55,7 +55,9 @@ def guard_node(state: MedicalState) -> dict:
             "answer": refusal_msg.content,
         }
 
-    return {"safety_status": "safe"}
+    return {"safety_status": "safe",
+            "messages": [HumanMessage(content=state["query"])]
+            }
 
 
 def brain_node(state: MedicalState) -> dict:

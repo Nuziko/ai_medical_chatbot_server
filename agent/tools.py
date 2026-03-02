@@ -4,7 +4,7 @@ from langchain_core.tools import tool
 from mock_db import patients
 from langchain_tavily import TavilySearch
 from datetime import datetime
-
+from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 import os
 load_dotenv()  
@@ -71,7 +71,7 @@ def get_current_date_time() -> str:
     """
     Return the current date and time as a string.
     """
-    return datetime.now().ctime()
+    return datetime.now(ZoneInfo("Africa/Algiers")).ctime()
 
 
 TOOLS = [search_web, get_patient_by_id, get_patients_by_name_or_birthdate,get_current_date_time]
