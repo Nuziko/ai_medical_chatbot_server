@@ -7,8 +7,8 @@ import utils
 load_dotenv()  
 
 
-config = {"configurable": {"thread_id":12}}
-state={"query":"what is the current time and date ?"}
+config = {"configurable": {"thread_id":156}}
+state={"query":"how many patient died with covid-19 in algeria "}
 async def stream_chat():
     async with AsyncSqliteSaver.from_conn_string("./medical_chatbot.db") as checkpointer:
         app=builder.compile(checkpointer=checkpointer)
