@@ -26,4 +26,6 @@ class ThreadListResponse(BaseModel):
     threads: List[ThreadInfo]
 
 
-    
+class TranscriptionResponse(BaseModel):
+    transcription: Optional[str] = None
+    error: Optional[str] = None

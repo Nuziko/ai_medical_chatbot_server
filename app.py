@@ -1,11 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,UploadFile,File
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from agent.graph_builder import builder
+from agent.utils import transcript
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from contextlib import asynccontextmanager
 from utils import stream_app_output,get_answer
-from type import ChatRequest, ChatResponse,ThreadListResponse,HistoryResponse
+from type import ChatRequest, ChatResponse,ThreadListResponse,HistoryResponse,TranscriptionResponse
 
 
 @asynccontextmanager
@@ -93,3 +94,12 @@ async def get_history(thread_id: str = None):
     
         
     return HistoryResponse(messages=formated_messages)
+
+
+@app.post("/transcribe", response_model=TranscriptionResponse)
+async def transcribe_audio(file: UploadFile=File(...)):
+    content = await file.read()
+    transcription = transcript(file_name=file.filename,file_bytes=content)
+    if transcription is None:
+        return TranscriptionResponse(error="Transcription failed. Please try again.")
+    return TranscriptionResponse(transcription=transcription)

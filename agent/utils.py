@@ -39,3 +39,21 @@ def build_summary_prompt(existing_summary: str, conversation: str) -> str:
         prompt=BUILD_SUMMARY_PROMPT_TEMPLATE.format(conversation=conversation)
 
     return prompt
+
+from groq import Groq
+
+client = Groq()
+
+def transcript(file_name: str, file_bytes: bytes) -> str:
+    try: 
+        transcription = client.audio.transcriptions.create(
+        file=(file_name, file_bytes,),
+        model="whisper-large-v3-turbo",
+        temperature=0,
+        response_format="verbose_json",
+        )
+        return transcription.text
+    except Exception as e:
+        print(f"Error during transcription: {e}")
+        return None
+
