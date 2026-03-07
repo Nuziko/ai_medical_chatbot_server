@@ -69,11 +69,11 @@ async def chat(request: ChatRequest):
     config = {"configurable": {"thread_id": request.thread_id}}
     graph_app = app.state.graph
     try:
-        output, urls = await get_answer(graph_app,state,config)
+        output, urls,safety = await get_answer(graph_app,state,config)
     except Exception as e:
         print(f"Error in /chat endpoint: {e}")
         return ChatResponse(success=False, error="Something went wrong while processing the request.")
-    return ChatResponse(success=True, response=output, urls=urls)
+    return ChatResponse(success=True, response=output, urls=urls,safety=safety)
 
 @app.get("/history", response_model=HistoryResponse)
 async def get_history(thread_id: str = None):

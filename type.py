@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional,Literal
 
 
 class ChatRequest(BaseModel):
@@ -11,6 +11,7 @@ class ChatResponse(BaseModel):
     response: Optional[str] = None
     error: Optional[str] = None
     urls: Optional[List[str]] = None
+    safety: Literal['safe', 'unsafe'] = 'safe'
 
 class Checkpoint(BaseModel):
     threads: int

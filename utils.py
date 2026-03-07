@@ -22,7 +22,7 @@ async def stream_app_output(app,input,config):
 
 async def get_answer(app,input,config):
     output=await app.ainvoke(input,config=config)
-    return output.get('answer',""),output.get('urls',[])
+    return output.get('answer',""),output.get('urls',[]),output.get("safety_status","safe")
 
 
 
