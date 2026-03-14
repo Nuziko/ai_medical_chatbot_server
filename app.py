@@ -87,13 +87,17 @@ async def get_history(thread_id: str = None):
         return HistoryResponse(messages=[])
     
     messages = checkpoint_tuple.checkpoint.get("channel_values", {}).get("messages", [])
+    if len(messages) > 20 :
+        messages = messages[-20:]
     formated_messages = [{"type": message.type, "content": message.content} 
                      for message in messages
                      if message.type in ['human', 'ai']
                      and message.content.strip() != ""]
     
-        
+    if formated_messages[0]["type"] == "ai":
+        formated_messages = formated_messages[1:]
     return HistoryResponse(messages=formated_messages)
+
 
 
 @app.post("/transcribe", response_model=TranscriptionResponse)

@@ -72,8 +72,8 @@ def brain_node(state: MedicalState) -> dict:
     """
     system_prompt = build_system_prompt(state.get("summary", ""))
 
-    
-    messages = [SystemMessage(content=system_prompt)] + state["messages"]
+    recent_messages = state["messages"][-5:]  if len(state["messages"]) > 5 else state["messages"]
+    messages = [SystemMessage(content=system_prompt)] + recent_messages
 
     response = get_llm(model_name="openai/gpt-oss-120b", tools=TOOLS,tags=["brain"],temperature=0.2).invoke(messages)
 
@@ -81,12 +81,14 @@ def brain_node(state: MedicalState) -> dict:
     return {"messages": [response]}
 
 
-MESSAGES_TO_KEEP = 5
+
+MESSAGES_TO_KEEP = 20
+
 
 def summarize_node(state: MedicalState) -> dict:
     
     """
-    1. Takes all messages OLDER than the last 5
+    1. Takes all messages OLDER than the last 20
     2. Summarizes them (extending any existing summary)
     3. Removes those old messages from state via RemoveMessage
     4. Updates the 'summary' key in state
@@ -98,7 +100,7 @@ def summarize_node(state: MedicalState) -> dict:
     existing_summary = state.get("summary", "")
 
     
-    messages_to_summarize = messages[:-MESSAGES_TO_KEEP] 
+    messages_to_summarize = messages[-MESSAGES_TO_KEEP:-5]  # Keep the most recent 5 messages in full to preserve context for the summary
 
     past_conversation = "\n".join(
         f"{m.__class__.__name__}: {m.content}"
@@ -119,16 +121,10 @@ def summarize_node(state: MedicalState) -> dict:
     )
     new_summary = summary_response.content
 
-   
-    messages_to_delete = [
-        RemoveMessage(id=m.id)
-        for m in messages_to_summarize
-    ]
-
     return {
-        "summary": new_summary,
-        "messages": messages_to_delete,
+        "summary": new_summary
     }
+
 
 
 
